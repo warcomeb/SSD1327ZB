@@ -177,13 +177,6 @@ void SSD1327ZB_init (SSD1327ZB_Device* dev)
     Gpio_set(dev->gdl.cs);
     Gpio_set(dev->gdl.rs);
 
-    // Reset sequence
-    Gpio_set(dev->rstPin);
-    dev->gdl.delayTime(1);
-    Gpio_clear(dev->rstPin);
-    dev->gdl.delayTime(10);
-    Gpio_set(dev->rstPin);
-
 #elif defined WARCOMEB_GDL_I2C
 
 #elif defined WARCOMEB_GDL_SPI
@@ -220,10 +213,10 @@ GDL_Errors SSD1327ZB_drawPixel (SSD1327ZB_Device* dev,
     if ((xPos >= dev->gdl.width) || (yPos >= dev->gdl.height))
         return GDL_ERRORS_WRONG_POSITION;
 
-    uint16_t pos = ((uint16_t) xPos/2) + ((uint16_t) (yPos/2)*(dev->gdl.width/2));
+    uint16_t pos = ((uint16_t) xPos/2) + ((uint16_t) yPos*(dev->gdl.width/2));
 
     if (xPos%2)
-        dev->buffer[pos] = ((color & 0x0F) | (dev->dump[pos] & 0xF0));
+        dev->buffer[pos] = ((color & 0x0F) | (dev->buffer[pos] & 0xF0));
     else
         dev->buffer[pos] = (((color << 4) & 0xF0) | (dev->buffer[pos] & 0x0F));
 
@@ -274,7 +267,7 @@ void SSD1327ZB_drawHLine (SSD1327ZB_Device* dev,
     SSD1327ZB_drawLine(dev,xStart,yStart,xStart+width,yStart,color);
 }
 
-void SSD1327ZB_drawVLine (SSD1306_Device* dev,
+void SSD1327ZB_drawVLine (SSD1327ZB_Device* dev,
                           uint8_t xStart,
                           uint8_t yStart,
                           uint8_t height,

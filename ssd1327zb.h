@@ -254,5 +254,20 @@ void SSD1327ZB_clear (SSD1327ZB_Device* dev);
  */
 void SSD1327ZB_flush (SSD1327ZB_Device* dev);
 
+/**
+ *
+ *
+ * @param[in] dev The handle of the device
+ * @param[in] xStart The x start position into the buffer
+ * @param[in] xStop The x stop position into the buffer
+ * @param[in] yStart The y start position into the buffer
+ * @param[in] yStop The y stop position into the buffer
+ */
+void SSD1327ZB_flushPart (SSD1327ZB_Device* dev,
+                          uint8_t xStart,
+                          uint8_t xStop,
+                          uint8_t yStart,
+                          uint8_t yStop);
+
 #endif /* __WARCOMEB_SSD1327ZB_H */
 

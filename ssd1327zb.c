@@ -108,30 +108,37 @@ static void SSD1327ZB_sendData (SSD1327ZB_Device* dev, uint8_t value)
 
 /**
  * The function set the current position into the display. The values are related to
- * the internal buffer and not to the pixel of the display.
+ * the internal buffer of the display.
  *
  * @param[in] dev The handle of the device
- * @param[in] xPos The x position into the buffer
- * @param[in] yPos The y position into the buffer
+ * @param[in] xStart The x start position into the buffer
+ * @param[in] xStop The x stop position into the buffer
+ * @param[in] yStart The y start position into the buffer
+ * @param[in] yStop The y stop position into the buffer
  * @return Return an error if the requested position is wrong,
  *         GDL_ERRORS_OK otherwise.
  */
 static GDL_Errors SSD1327ZB_setBufferPosition (SSD1327ZB_Device* dev,
-                                               uint8_t xPos,
-                                               uint8_t yPos)
+                                               uint8_t xStart,
+                                               uint8_t xStop,
+                                               uint8_t yStart,
+                                               uint8_t yStop)
 {
-    if ((xPos >= dev->gdl.width) || (yPos >= dev->gdl.height))
+    if ((xStart >= dev->gdl.width) || (yStart >= dev->gdl.height))
+        return GDL_ERRORS_WRONG_POSITION;
+
+    if ((xStop >= dev->gdl.width) || (yStop >= dev->gdl.height))
         return GDL_ERRORS_WRONG_POSITION;
 
     // Set column address
     SSD1327ZB_sendCommand(dev,SSD1327ZB_CMD_SETCOLUMNADDR);
-    SSD1327ZB_sendCommand(dev,xPos);
-    SSD1327ZB_sendCommand(dev,0x3F); // Max value!
+    SSD1327ZB_sendCommand(dev,xStart/2);
+    SSD1327ZB_sendCommand(dev,xStop/2);
 
     // Set row address
     SSD1327ZB_sendCommand(dev,SSD1327ZB_CMD_SETROWADDR);
-    SSD1327ZB_sendCommand(dev,yPos);
-    SSD1327ZB_sendCommand(dev,0x7F); // Max value!
+    SSD1327ZB_sendCommand(dev,yStart);
+    SSD1327ZB_sendCommand(dev,yStop);
 
     return GDL_ERRORS_OK;
 }
@@ -152,7 +159,7 @@ void SSD1327ZB_init (SSD1327ZB_Device* dev)
     // Save callback for drawing pixel
     dev->gdl.drawPixel = SSD1327ZB_drawPixel;
 
-    memset(dev->buffer, 0x00, WARCOMEB_SSD1327ZB_BUFFERDIMENSION);
+//    memset(dev->buffer, 0x00, WARCOMEB_SSD1327ZB_BUFFERDIMENSION);
 
 #if defined WARCOMEB_GDL_PARALLEL
 
@@ -231,12 +238,36 @@ void SSD1327ZB_setContrast (SSD1327ZB_Device* dev, uint8_t value)
 
 void SSD1327ZB_flush (SSD1327ZB_Device* dev)
 {
-    // Set the cursor to the starting point
-    SSD1327ZB_setBufferPosition(dev,0,0);
+    // Set the cursor to the starting point of the display
+    // Print all the buffer
+    SSD1327ZB_setBufferPosition(dev,0,dev->gdl.width-1,0,dev->gdl.height-1);
 
     for (uint16_t i = 0; i < WARCOMEB_SSD1327ZB_BUFFERDIMENSION; i++)
     {
         SSD1327ZB_sendData(dev,dev->buffer[i]);
+    }
+}
+
+void SSD1327ZB_flushPart (SSD1327ZB_Device* dev,
+                          uint8_t xStart,
+                          uint8_t xStop,
+                          uint8_t yStart,
+                          uint8_t yStop)
+{
+    // Set the part of the display where change the pixels
+    GDL_Errors error = SSD1327ZB_setBufferPosition(dev,xStart,xStop,yStart,yStop);
+    if (error != GDL_ERRORS_OK) return;
+
+    uint8_t xStartHalf = xStart/2;
+    uint8_t xStopHalf = xStop/2;
+    uint8_t widthHalf = dev->gdl.width/2;
+
+    for (uint8_t i = xStartHalf; i <= xStopHalf; i++)
+    {
+        for (uint8_t j = yStart; j <= yStop; j++)
+        {
+            SSD1327ZB_sendData(dev,dev->buffer[i + (j * widthHalf)]);
+        }
     }
 }
 
@@ -294,5 +325,5 @@ GDL_Errors SSD1327ZB_drawChar (SSD1327ZB_Device* dev,
                                SSD1327ZB_GrayScale color,
                                uint8_t size)
 {
-    GDL_drawChar(&(dev->gdl),xPos,yPos,c,(uint8_t)color,0,size);
+    return GDL_drawChar(&(dev->gdl),xPos,yPos,c,(uint8_t)color,0,size);
 }

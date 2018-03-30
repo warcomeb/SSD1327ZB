@@ -28,6 +28,8 @@
 
 #include "ssd1327zb.h"
 
+#include <string.h>
+
 #define SSD1327ZB_CMD_SETCOLUMNADDR              0x15
 #define SSD1327ZB_CMD_SETROWADDR                 0x75
 #define SSD1327ZB_CMD_SETCONTRAST                0x81
@@ -223,9 +225,9 @@ GDL_Errors SSD1327ZB_drawPixel (SSD1327ZB_Device* dev,
     uint16_t pos = ((uint16_t) xPos/2) + ((uint16_t) yPos*(dev->gdl.width/2));
 
     if (xPos%2)
-        dev->buffer[pos] = ((color & 0x0F) | (dev->buffer[pos] & 0xF0));
-    else
         dev->buffer[pos] = (((color << 4) & 0xF0) | (dev->buffer[pos] & 0x0F));
+    else
+        dev->buffer[pos] = ((color & 0x0F) | (dev->buffer[pos] & 0xF0));
 
     return GDL_ERRORS_OK;
 }
@@ -262,11 +264,11 @@ void SSD1327ZB_flushPart (SSD1327ZB_Device* dev,
     uint8_t xStopHalf = xStop/2;
     uint8_t widthHalf = dev->gdl.width/2;
 
-    for (uint8_t i = xStartHalf; i <= xStopHalf; i++)
+    for (uint8_t i = yStart; i <= yStop; i++)
     {
-        for (uint8_t j = yStart; j <= yStop; j++)
+        for (uint8_t j = xStartHalf; j <= xStopHalf; j++)
         {
-            SSD1327ZB_sendData(dev,dev->buffer[i + (j * widthHalf)]);
+            SSD1327ZB_sendData(dev,dev->buffer[j + (i * widthHalf)]);
         }
     }
 }

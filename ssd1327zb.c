@@ -325,7 +325,8 @@ GDL_Errors SSD1327ZB_drawChar (SSD1327ZB_Device* dev,
                                uint16_t yPos,
                                uint8_t c,
                                SSD1327ZB_GrayScale color,
+                               SSD1327ZB_GrayScale background,
                                uint8_t size)
 {
-    return GDL_drawChar(&(dev->gdl),xPos,yPos,c,(uint8_t)color,0,size);
+    return GDL_drawChar(&(dev->gdl),xPos,yPos,c,(uint8_t)color,(uint8_t)background,size);
 }

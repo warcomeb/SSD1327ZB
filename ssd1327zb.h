@@ -208,6 +208,7 @@ void SSD1327ZB_drawRectangle (SSD1327ZB_Device* dev,
  * @param[in] yPos The y position
  * @param[in] c The char to be draw
  * @param[in] color The foreground color of the char
+ * @param[in] background The background color of the char
  * @param[in] size The size for the char, if 0 use default dimension
  * @return GDL_ERRORS_WRONG_POSITION if the dimension plus position of the char
  *         exceeds the width or height of the display, GDL_ERRORS_OK otherwise.
@@ -217,6 +218,7 @@ GDL_Errors SSD1327ZB_drawChar (SSD1327ZB_Device* dev,
                                uint16_t yPos,
                                uint8_t c,
 							   SSD1327ZB_GrayScale color,
+                               SSD1327ZB_GrayScale background,
                                uint8_t size);
 
 

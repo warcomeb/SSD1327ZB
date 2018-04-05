@@ -48,17 +48,16 @@
 #define SSD1327ZB_REMAP_COM                      0x10 /**< Enable COM remap */
 #define SSD1327ZB_REMAP_ODDEVEN_COM              0x40 /**< Enable COM split odd/even */
 
-static void SSD1327ZB_write8 (SSD1327ZB_Device* dev, uint8_t value)
-{
-    ((value & 0x01) > 0) ? Gpio_set(dev->gdl.d0) : Gpio_clear(dev->gdl.d0);
-    ((value & 0x02) > 0) ? Gpio_set(dev->gdl.d1) : Gpio_clear(dev->gdl.d1);
-    ((value & 0x04) > 0) ? Gpio_set(dev->gdl.d2) : Gpio_clear(dev->gdl.d2);
-    ((value & 0x08) > 0) ? Gpio_set(dev->gdl.d3) : Gpio_clear(dev->gdl.d3);
-    ((value & 0x10) > 0) ? Gpio_set(dev->gdl.d4) : Gpio_clear(dev->gdl.d4);
-    ((value & 0x20) > 0) ? Gpio_set(dev->gdl.d5) : Gpio_clear(dev->gdl.d5);
-    ((value & 0x40) > 0) ? Gpio_set(dev->gdl.d6) : Gpio_clear(dev->gdl.d6);
-    ((value & 0x80) > 0) ? Gpio_set(dev->gdl.d7) : Gpio_clear(dev->gdl.d7);
-}
+#define SSD1327ZB_write(value) do {                                         \
+    ((value & 0x01) > 0) ? Gpio_set(dev->gdl.d0) : Gpio_clear(dev->gdl.d0); \
+    ((value & 0x02) > 0) ? Gpio_set(dev->gdl.d1) : Gpio_clear(dev->gdl.d1); \
+    ((value & 0x04) > 0) ? Gpio_set(dev->gdl.d2) : Gpio_clear(dev->gdl.d2); \
+    ((value & 0x08) > 0) ? Gpio_set(dev->gdl.d3) : Gpio_clear(dev->gdl.d3); \
+    ((value & 0x10) > 0) ? Gpio_set(dev->gdl.d4) : Gpio_clear(dev->gdl.d4); \
+    ((value & 0x20) > 0) ? Gpio_set(dev->gdl.d5) : Gpio_clear(dev->gdl.d5); \
+    ((value & 0x40) > 0) ? Gpio_set(dev->gdl.d6) : Gpio_clear(dev->gdl.d6); \
+    ((value & 0x80) > 0) ? Gpio_set(dev->gdl.d7) : Gpio_clear(dev->gdl.d7); \
+    } while (0)
 
 static void SSD1327ZB_sendCommand (SSD1327ZB_Device* dev, uint8_t command)
 {
@@ -71,7 +70,7 @@ static void SSD1327ZB_sendCommand (SSD1327ZB_Device* dev, uint8_t command)
     Gpio_clear(dev->gdl.dc);
     // Enable writing
     Gpio_clear(dev->gdl.wr);
-    SSD1327ZB_write8(dev,command);
+    SSD1327ZB_write(command);
     // Restore write pin
     Gpio_set(dev->gdl.wr);
     // Disable device
@@ -95,7 +94,7 @@ static void SSD1327ZB_sendData (SSD1327ZB_Device* dev, uint8_t value)
     Gpio_set(dev->gdl.dc);
     // Enable writing
     Gpio_clear(dev->gdl.wr);
-    SSD1327ZB_write8(dev,value);
+    SSD1327ZB_write(value);
     // Restore write pin
     Gpio_set(dev->gdl.wr);
     // Disable device

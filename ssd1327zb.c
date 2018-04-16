@@ -329,3 +329,17 @@ GDL_Errors SSD1327ZB_drawChar (SSD1327ZB_Device* dev,
 {
     return GDL_drawChar(&(dev->gdl),xPos,yPos,c,(uint8_t)color,(uint8_t)background,size);
 }
+
+GDL_Errors SSD1327ZB_drawPicture (SSD1327ZB_Device* dev,
+                                  uint16_t xPos,
+                                  uint16_t yPos,
+                                  uint16_t width,
+                                  uint16_t height,
+                                  const uint8_t* picture,
+                                  GDL_PictureType pixelType)
+{
+    if ((pixelType != GDL_PICTURETYPE_1BIT) && (pixelType != GDL_PICTURETYPE_4BIT))
+        return GDL_ERRORS_WRONG_VALUE;
+
+    return GDL_drawPicture(&(dev->gdl),xPos,yPos,width,height,picture,pixelType);
+}
